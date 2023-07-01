@@ -22,6 +22,9 @@ class User(AbstractUser):
         "Service", through="UserService", related_name="users_set"
     )
 
+    def __str__(self):
+        return self.username
+
 
 class UserService(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE)
@@ -98,3 +101,17 @@ class TempCode(models.Model):
 
     class InvalidCode(Exception):
         pass
+
+
+class ServiceLog(models.Model):
+
+    class Status(models.TextChoices):
+        SUCCESS_VIEW = "SV", "Просмотр секрета"
+        ATTEMPT_VIEW = "AV", "Попытка просмотра"
+        SUCCESS_GENERATION = "SG", "Успешное пересоздание"
+        FAILED_GENERATION = "FG", "Провальное пересоздание"
+
+    user = models.ForeignKey("User", on_delete=models.CASCADE)
+    ip = models.GenericIPAddressField(protocol="ipv4")
+    status = models.CharField(choices=Status.choices, max_length=2)
+    annotation = models.CharField(max_length=500)

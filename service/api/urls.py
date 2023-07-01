@@ -7,4 +7,5 @@ from .views import agent
 urlpatterns = [
     path("services", services.ListUserServiceAPIView.as_view()),
     path("agent/service", agent.ListAgentServiceAPIView.as_view()),
+    path("agent/service/check", agent.CheckAgentAPIView.as_view()),
 ]

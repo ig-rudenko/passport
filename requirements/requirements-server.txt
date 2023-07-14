@@ -1,5 +1,7 @@
 Django
+Pillow
 djangorestframework
 requests
 pydantic
 djangorestframework-simplejwt
+transliterate

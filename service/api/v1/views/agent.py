@@ -12,7 +12,7 @@ class AgentMixin:
     def get_service(self) -> Service:
         agent_token = self.request.META.get("HTTP_TOKEN", None)
         if agent_token is None:
-            raise NotAuthenticated()
+            raise NotAuthenticated("Token не был предоставлен")
 
         try:
             service: Service = Service.objects.get(agent_token=agent_token)

@@ -16,16 +16,13 @@ class UserCreateAPIView(generics.CreateAPIView):
     queryset = User.objects.all()
 
 
-class NewTokenObtainPairSerializer(TokenObtainPairSerializer):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user = None
-
-
 class GetTokenPairView(TokenObtainPairView):
-    serializer_class = NewTokenObtainPairSerializer
+    serializer_class = TokenObtainPairSerializer
 
     def get_validate_serializer(self):
+        """
+        Возвращает проверенный объект сериализатора.
+        """
         serializer = self.get_serializer(data=self.request.data)
         try:
             serializer.is_valid(raise_exception=True)
@@ -41,8 +38,12 @@ class GetTokenPairView(TokenObtainPairView):
         user: User = serializer.user
 
         if not user.temp_codes.filter(exp__gt=timezone.now()).count():
-            # Если нет доступных кодов подтверждения.
-            notify_to_telegram(user.telegram_id, user.generate_new_temp_code().code)
+            # Если нет доступных кодов подтверждения, то создаем новый.
+            notify_to_telegram(
+                user.telegram_id,
+                user.generate_new_temp_code().code,
+                text_prefix=self.get_request_info(),
+            )
             return Response(
                 {"error": "Подтвердите код, отправленный на ваш телеграм"},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -51,6 +52,18 @@ class GetTokenPairView(TokenObtainPairView):
         self.validate_code(code)
 
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
+
+    def get_request_info(self) -> str:
+        """
+        Возвращает информацию для понимания, от кого поступил запрос.
+        """
+        x_forwarded_for = self.request.META.get("HTTP_X_FORWARDED_FOR")
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(",")[0]
+        else:
+            ip = self.request.META.get("REMOTE_ADDR")
+
+        return f"Запрос был получен от IP адреса: {ip}"
 
     @staticmethod
     def validate_code(code: str):

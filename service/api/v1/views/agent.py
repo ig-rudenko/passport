@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import NotAuthenticated
 
-from service.models import Service, UserService, User, TempCode
-from ..serializers import AgentUserServiceSerializer, NewGeneratedUserServiceSerializer
+from service.models import Service, UserService
+from service.api.serializers import AgentUserServiceSerializer, NewGeneratedUserServiceSerializer
 
 
 class AgentMixin:

@@ -1,4 +1,5 @@
 from django.utils import timezone
+from django.conf import settings
 from rest_framework import generics, status
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
@@ -6,9 +7,8 @@ from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from account.models import User, TempCode
 from ..serializers import UserSerializer
-from ...notificator import notify_to_telegram
+from account.models import User, TempCode
 
 
 class UserCreateAPIView(generics.CreateAPIView):
@@ -18,6 +18,7 @@ class UserCreateAPIView(generics.CreateAPIView):
 
 class GetTokenPairView(TokenObtainPairView):
     serializer_class = TokenObtainPairSerializer
+    notificator_class = settings.DEFAULT_NOTIFIER_CLASS
 
     def get_validate_serializer(self):
         """
@@ -39,8 +40,8 @@ class GetTokenPairView(TokenObtainPairView):
 
         if not user.temp_codes.filter(exp__gt=timezone.now()).count():
             # Если нет доступных кодов подтверждения, то создаем новый.
-            notify_to_telegram(
-                user.telegram_id,
+            notifier = self.notificator_class(type_="telegram", user=user)
+            notifier.notify(
                 user.generate_new_temp_code().code,
                 text_prefix=self.get_request_info(),
             )

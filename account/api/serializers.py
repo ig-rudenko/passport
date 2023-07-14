@@ -14,7 +14,4 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data["password"] = make_password(validated_data["password"])
-        user: User = super().create(validated_data)
-        user.is_active = False
-        user.save(update_fields=["is_active"])
-        return user
+        return super().create(validated_data)

@@ -6,4 +6,5 @@ from . import views
 
 urlpatterns = [
     path("users/", views.UserCreateAPIView.as_view()),
+    path("users/token", views.GetTokenPairView.as_view()),
 ]

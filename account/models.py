@@ -1,11 +1,16 @@
 from datetime import timedelta
 
+import requests
+from django.conf import settings
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
+from django.db.models.signals import post_save
+from django.dispatch.dispatcher import receiver
 
 from .code_generator import generate_code
+from .notificator import notify_to_telegram
 
 
 class User(AbstractUser):
@@ -23,7 +28,7 @@ class User(AbstractUser):
     class Meta:
         db_table = "users"
 
-    def generate_new_temp_code(self, timedelta_=timedelta(minutes=1)) -> "TempCode":
+    def generate_new_temp_code(self, timedelta_=timedelta(minutes=5)) -> "TempCode":
         """
         Функция генерирует новый временный код, состоящий из случайных символов алфавита, со сроком действия,
         основанным на текущем времени плюс заданная временная дельта для данной услуги.
@@ -33,10 +38,19 @@ class User(AbstractUser):
         # Удаляем старые коды
         TempCode.objects.filter(user_id=self.id).delete()
 
-        return TempCode(
+        return TempCode.objects.create(
             code=generate_code(5),
             exp=timezone.now() + timedelta_,
             user_id=self.id,
+        )
+
+
+@receiver(post_save, sender=User)
+def send_temp_code(sender, created: bool, instance: User, **kwargs):
+    if created:
+        code = instance.generate_new_temp_code().code
+        notify_to_telegram(
+            instance.telegram_id, code, text_prefix="Подтвердите регистрацию!\n"
         )
 
 
@@ -61,6 +75,7 @@ class TempCode(models.Model):
                 raise TempCode.InvalidCode("Код был просрочен")
             else:
                 return False
+        t_code.delete()
         return True
 
     class InvalidCode(Exception):

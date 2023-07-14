@@ -2,17 +2,18 @@ import os
 import logging
 import sys
 
-os.environ.setdefault("ZABBIX_URL", "http://192.168.31.201")
-os.environ.setdefault("ZABBIX_LOGIN", "irudenko")
-os.environ.setdefault("ZABBIX_PASSWORD", "opWu0Elh")
-os.environ.setdefault("ZABBIX_VERIFY_SESSION", "1")
-os.environ.setdefault("AGENT_TOKEN", "12345")
-os.environ.setdefault("PASSPORT_DOMAIN", "http://127.0.0.1:8000")
+from agents.zabbix.generator import ZabbixGenerator
+from agents.base.agent import Agent
+from agents.base.connector import Connector
 
 
-from zabbix.generator import ZabbixGenerator
-from base.agent import Agent
-from base.connector import Connector
+def check_connection(conn: Connector) -> None:
+    if conn.check_connection():
+        logger.info(f"Connection to PassPort established successfully")
+    else:
+        logger.info(f"Connection to PassPort refused")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     token = os.getenv("AGENT_TOKEN")
@@ -30,11 +31,7 @@ if __name__ == "__main__":
     logger.info(f"\n{'#'*20} RUN AGENT {'#'*20}")
 
     connector = Connector(token=token, domain=passport_domain)
-    if connector.check_connection():
-        logger.info(f"Connection to PassPort established successfully")
-    else:
-        logger.info(f"Connection to PassPort refused")
-        sys.exit(1)
+    check_connection(connector)
 
     agent = Agent(
         connector=connector,

@@ -2,8 +2,8 @@ import logging
 
 from urllib3.exceptions import NewConnectionError
 from pyzabbix import ZabbixAPIException
-from base.generator import BaseGenerator
-from base.secret import Secret, SecretStatus
+from ..base.generator import BaseGenerator
+from ..base.secret import Secret, SecretStatus
 from .zabbix_connection import ZabbixAPIConnection
 
 logger = logging.getLogger(__name__)

@@ -1,5 +1,3 @@
-from typing import List
-
 from rest_framework import serializers
 
 from agents.base.secret import SecretStatus, Secret

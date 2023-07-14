@@ -1,23 +1,29 @@
 from django.utils import timezone
 from django.conf import settings
 from rest_framework import generics, status
+from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from ..serializers import UserSerializer
 from account.models import User, TempCode
+from .swagger.schemas import obtain_token_schema
+from .serializers import UserSerializer, NewTokenObtainPairSerializer
 
 
 class UserCreateAPIView(generics.CreateAPIView):
+    """
+    # Регистрация нового пользователя
+    """
+
     serializer_class = UserSerializer
     queryset = User.objects.all()
+    permission_classes = [AllowAny]
 
 
 class GetTokenPairView(TokenObtainPairView):
-    serializer_class = TokenObtainPairSerializer
+    serializer_class = NewTokenObtainPairSerializer
     notificator_class = settings.DEFAULT_NOTIFIER_CLASS
 
     def get_validate_serializer(self):
@@ -29,10 +35,17 @@ class GetTokenPairView(TokenObtainPairView):
             serializer.is_valid(raise_exception=True)
         except TokenError as e:
             raise InvalidToken(e.args[0])
-        finally:
-            return serializer
+        return serializer
 
+    @obtain_token_schema
     def post(self, request, *args, **kwargs):
+        """
+        # Создает пару JWT - access и refresh.
+        Но только в том случае, когда передается верный код для подтверждения.
+        Если код отсутствует в запросе и у пользователя не было ни одного ранее отправленного кода,
+        тогда будет случайно сгенерирован буквенно-цифровой код и отправлен через телеграм бота пользователю,
+        данные которого передаются в запросе.
+        """
         code = request.data.get("code")
         serializer = self.get_validate_serializer()
 
@@ -50,7 +63,7 @@ class GetTokenPairView(TokenObtainPairView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        self.validate_code(code)
+        self.validate_code(code, user)
 
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
@@ -67,9 +80,9 @@ class GetTokenPairView(TokenObtainPairView):
         return f"Запрос был получен от IP адреса: {ip}"
 
     @staticmethod
-    def validate_code(code: str):
+    def validate_code(code: str, user):
         try:
             # Если был отправлен верный код
-            TempCode.is_valid(code, raise_exception=True)
+            TempCode.is_valid(code, user, raise_exception=True)
         except TempCode.InvalidCode as e:
             raise AuthenticationFailed(e.args[0])

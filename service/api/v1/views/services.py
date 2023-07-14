@@ -1,7 +1,7 @@
 from rest_framework import generics
 
 from service.models import UserService
-from service.api.serializers import UserServiceSerializer
+from ..serializers import UserServiceSerializer
 
 
 class ListCreateUserServiceAPIView(generics.ListCreateAPIView):

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "service.apps.ServiceConfig",
     "account.apps.AccountConfig",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -133,3 +134,29 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 DEFAULT_NOTIFIER_CLASS = Notifier
+
+SPECTACULAR_SETTINGS = {
+    "SCHEMA_PATH_PREFIX": "/api/v[0-9]",
+    "TITLE": "PassPort API",
+    "DESCRIPTION": "API для работы PassPort",
+    "VERSION": "v1",
+    "LICENSE": {
+        "name": "Apache-2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+    },
+    "SERVE_INCLUDE_SCHEMA": False,
+    "OAUTH2_TOKEN_URL": "/api/v1/account/token",
+    # "COMPONENT_SPLIT_REQUEST": True,
+}
+
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+}

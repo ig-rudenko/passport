@@ -46,9 +46,9 @@ class TempCode(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="temp_codes")
 
     @staticmethod
-    def is_valid(code: str, raise_exception=False) -> bool:
+    def is_valid(code: str, user, raise_exception=False) -> bool:
         try:
-            t_code = TempCode.objects.get(code=code)
+            t_code = TempCode.objects.get(code=code, user=user)
         except TempCode.DoesNotExist:
             if raise_exception:
                 raise TempCode.InvalidCode("Код подтверждения неверный или устарел")

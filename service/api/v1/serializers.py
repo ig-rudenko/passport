@@ -4,7 +4,7 @@ from django.utils.text import slugify
 from rest_framework.exceptions import ValidationError
 
 from agents.base.secret import SecretStatus, Secret
-from ..models import UserService, Service
+from service.models import UserService, Service
 
 
 class AgentUserServiceSerializer(serializers.ModelSerializer):

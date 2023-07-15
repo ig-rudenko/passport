@@ -51,8 +51,14 @@ class ServiceSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
+class CustomServiceCreateSerializer(ServiceSerializer):
+    class Meta:
+        model = Service
+        fields = ["name", "desc"]
+
+
 class UserServiceSerializer(serializers.ModelSerializer):
-    custom_service = ServiceSerializer(write_only=True, required=False)
+    custom_service = CustomServiceCreateSerializer(write_only=True, required=False)
     service = serializers.SlugRelatedField(
         slug_field="slug",
         write_only=True,
@@ -91,19 +97,25 @@ class UserServiceSerializer(serializers.ModelSerializer):
             raise ValidationError("Необходимо указать сервис")
 
         elif not custom_service and service_slug and not period:
-            raise ValidationError("Необходимо указать период")
+            raise ValidationError("Для данного сервиса необходимо указать период")
 
         return attrs
 
     def create(self, validated_data):
         if validated_data.get("custom_service"):
-            custom_service = ServiceSerializer().create(
-                {
-                    **validated_data.pop("custom_service"),
-                    "user": validated_data["user"],
-                }
-            )
-            validated_data["service"] = custom_service
+            validated_data["service"] = self._create_custom_service(validated_data)
 
         validated_data.pop("secret")
         return super().create(validated_data)
+
+    @staticmethod
+    def _create_custom_service(data) -> Service:
+        if data.get("period"):
+            del data["period"]
+        custom_service = CustomServiceCreateSerializer().create(
+            {
+                **data.pop("custom_service"),
+                "user": data["user"],
+            }
+        )
+        return custom_service

@@ -1,3 +1,4 @@
+import transliterate
 from django.utils import timezone
 from django.core.validators import (
     MinValueValidator,
@@ -7,6 +8,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.db.models.signals import pre_delete
 from django.dispatch.dispatcher import receiver
+from django.utils.text import slugify
 
 
 class Service(models.Model):
@@ -25,6 +27,13 @@ class Service(models.Model):
 
     class Meta:
         db_table = "services"
+
+    def save(
+        self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
+        if not self.slug:
+            self.slug = slugify(transliterate.translit(self.name, language_code="ru", reversed=True))[:256]
+        return super().save(force_insert, force_update, using, update_fields)
 
 
 @receiver(pre_delete, sender=Service)

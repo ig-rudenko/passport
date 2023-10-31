@@ -29,8 +29,8 @@ class GetTokenPairView(TokenObtainPairView):
             serializer.is_valid(raise_exception=True)
         except TokenError as e:
             raise InvalidToken(e.args[0])
-        finally:
-            return serializer
+
+        return serializer
 
     def post(self, request, *args, **kwargs):
         code = request.data.get("code")

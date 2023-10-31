@@ -13,10 +13,10 @@ class __VaultSecrets:
         # Создаем клиент для подключения к vault
         self.__client = hvac.Client(url=vault_url, token=vault_token)
         # Проверяем, что клиент авторизован и имеет доступ к секретам
-        if not self.__client.is_authenticated():
-            raise AuthenticationError("Неверный токен vault")
-        if self.__client.sys.read_seal_status()['sealed']:
-            raise AuthenticationError("Vault заблокирован")
+        # if not self.__client.is_authenticated():
+            # raise AuthenticationError("Неверный токен vault")
+        # if self.__client.sys.read_seal_status()['sealed']:
+        #     raise AuthenticationError("Vault заблокирован")
 
     @property
     def client(self) -> hvac.Client:

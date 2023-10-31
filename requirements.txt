@@ -4,3 +4,4 @@ requests
 pydantic
 djangorestframework-simplejwt
 hvac
+drf-yasg[validation]

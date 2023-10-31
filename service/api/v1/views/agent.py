@@ -3,6 +3,7 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import NotAuthenticated
+from rest_framework.views import APIView
 
 from service.models import AgentService, UserService
 from service.api.serializers import AgentUserServiceSerializer, NewGeneratedUserServiceSerializer
@@ -22,12 +23,13 @@ class AgentMixin:
         return service
 
 
-class CheckAgentAPIView(generics.GenericAPIView, AgentMixin):
+class CheckAgentAPIView(APIView, AgentMixin):
     permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
         if self.get_service():
             return Response()
+        return Response(status=404)
 
 
 class ListAgentServiceAPIView(generics.ListAPIView, AgentMixin):

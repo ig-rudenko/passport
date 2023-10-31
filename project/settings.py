@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "service.apps.ServiceConfig",
     "account.apps.AccountConfig",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [

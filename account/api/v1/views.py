@@ -2,6 +2,7 @@ from django.utils import timezone
 from django.conf import settings
 from rest_framework import generics, status
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -12,6 +13,7 @@ from account.models import User, TempCode
 
 
 class UserCreateAPIView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
     serializer_class = UserSerializer
     queryset = User.objects.all()
 

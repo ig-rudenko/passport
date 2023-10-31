@@ -4,19 +4,19 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import NotAuthenticated
 
-from service.models import Service, UserService
+from service.models import AgentService, UserService
 from service.api.serializers import AgentUserServiceSerializer, NewGeneratedUserServiceSerializer
 
 
 class AgentMixin:
-    def get_service(self) -> Service:
-        agent_token = self.request.META.get("HTTP_TOKEN", None)
+    def get_service(self) -> AgentService:
+        agent_token = getattr(self, "request").META.get("HTTP_TOKEN", None)
         if agent_token is None:
             raise NotAuthenticated()
 
         try:
-            service: Service = Service.objects.get(agent_token=agent_token)
-        except Service.DoesNotExist:
+            service: AgentService = AgentService.objects.get(agent_token=agent_token)
+        except AgentService.DoesNotExist:
             raise NotAuthenticated("Неверные данные авторизации")
 
         return service

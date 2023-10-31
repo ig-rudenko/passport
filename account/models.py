@@ -14,7 +14,7 @@ class User(AbstractUser):
         validators=[MinLengthValidator(11)], max_length=11, null=True, blank=True
     )
     services = models.ManyToManyField(
-        "service.Service", through="service.UserService", related_name="users_set"
+        "service.AgentService", through="service.UserService", related_name="users_set"
     )
 
     def __str__(self):

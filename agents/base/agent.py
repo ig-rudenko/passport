@@ -10,11 +10,12 @@ logger = logging.getLogger(__name__)
 
 
 class Agent:
-    def __init__(self, connector: Connector, generator: BaseGenerator):
+    def __init__(self, connector: Connector, generator: BaseGenerator, period: int):
         self.connector = connector
         self.generator = generator
         self._old_secrets: List[Secret] = []
         self._new_secrets: List[SecretStatus] = []
+        self._period = period
 
     def start(self):
         """
@@ -37,7 +38,7 @@ class Agent:
             except Exception as error:
                 logger.error(error, exc_info=True)
             finally:
-                time.sleep(60)
+                time.sleep(self._period)
 
     def get_refresh_list(self):
         self._old_secrets = self.connector.collect_users()

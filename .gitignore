@@ -2,3 +2,5 @@
 .git
 venv
 db.sqlite3
+certs
+vault

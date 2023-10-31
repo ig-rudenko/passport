@@ -9,6 +9,11 @@ logger = logging.Logger(__file__)
 logger.setLevel(logging.INFO)
 
 
+class NotifierError(Exception):
+    def __init__(self, msg):
+        self.message = msg
+
+
 class Notifier:
     __TELEGRAM_BOT_URL = f"https://api.telegram.org/bot{os.getenv('TG_TOKEN')}/"
 
@@ -43,8 +48,11 @@ class Notifier:
         resp = requests.post(
             self.__TELEGRAM_BOT_URL + "sendMessage", json=json_data, timeout=3
         )
-        logger.error(resp.json())
-        return resp.status_code == 200
+        data = resp.json()
+        if resp.status_code != 200:
+            logger.error(f"notify_to_telegram {data}")
+            raise NotifierError(data)
+        return True
 
     def _notify_to_sms(self, t_code: str, text_prefix: str = "") -> bool:
         pass

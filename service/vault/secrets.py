@@ -3,8 +3,6 @@ import os
 import hvac
 from hvac.exceptions import InvalidPath
 
-from .exceptions import AuthenticationError
-
 __all__ = ['vault']
 
 
@@ -14,7 +12,7 @@ class __VaultSecrets:
         self.__client = hvac.Client(url=vault_url, token=vault_token)
         # Проверяем, что клиент авторизован и имеет доступ к секретам
         # if not self.__client.is_authenticated():
-            # raise AuthenticationError("Неверный токен vault")
+        # raise AuthenticationError("Неверный токен vault")
         # if self.__client.sys.read_seal_status()['sealed']:
         #     raise AuthenticationError("Vault заблокирован")
 

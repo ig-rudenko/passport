@@ -2,16 +2,8 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from .mocks import NotifierMock
 from ..models import User, TempCode
-from ..notificator import Notifier
-
-
-class NotifierMock(Notifier):
-    def _notify_to_telegram(self, t_code: str, text_prefix: str = "") -> bool:
-        return True
-
-    def _notify_to_sms(self, t_code: str, text_prefix: str = "") -> bool:
-        return True
 
 
 class TestTokenAuth(TestCase):
@@ -30,7 +22,6 @@ class TestTokenAuth(TestCase):
     def test_auth(self):
         # Используем mock в тесте.
         with self.settings(DEFAULT_NOTIFIER_CLASS=NotifierMock):
-
             # Проверяем, что без кода подтверждения не получить доступ.
             response = self.client.post(self.url, self.data, format="json")
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

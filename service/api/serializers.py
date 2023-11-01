@@ -32,7 +32,7 @@ class NewGeneratedUserServiceSerializer(serializers.Serializer):
         )
 
 
-class UserServiceListSerializer(serializers.ModelSerializer):
+class ListUserServiceSerializer(serializers.ModelSerializer):
     """
     Для списка сервисов, которые имеют ротацию секрета
     """
@@ -59,7 +59,7 @@ class DetailUserServiceSerializer(serializers.ModelSerializer):
         fields = ["id", "secret", "service", "identifier", "period", "name", "desc"]
 
 
-class UserSecretListCreateSerializer(serializers.ModelSerializer):
+class ListCreateUserSecretSerializer(serializers.ModelSerializer):
     """
     Для просмотра/создания списка сервисов, который создал сам пользователь
     """

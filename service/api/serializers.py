@@ -36,6 +36,7 @@ class UserServiceListSerializer(serializers.ModelSerializer):
     """
     Для списка сервисов, которые имеют ротацию секрета
     """
+
     name = serializers.CharField(source="service.name", read_only=True)
     desc = serializers.CharField(source="service.desc", read_only=True)
 
@@ -48,6 +49,7 @@ class DetailUserServiceSerializer(serializers.ModelSerializer):
     """
     Для просмотра сервиса и секрета, который имеет ротацию секрета
     """
+
     secret = serializers.CharField(source="service.secret", read_only=True)
     name = serializers.CharField(source="service.name", read_only=True)
     desc = serializers.CharField(source="service.desc", read_only=True)
@@ -61,6 +63,7 @@ class UserSecretListCreateSerializer(serializers.ModelSerializer):
     """
     Для просмотра/создания списка сервисов, который создал сам пользователь
     """
+
     secret = serializers.CharField(write_only=True)
 
     class Meta:
@@ -72,13 +75,10 @@ class DetailUserSecretSerializer(serializers.ModelSerializer):
     """
     Для просмотра/редактирования/удаления сервиса и секрета, который создал сам пользователь
     """
+
     secret = serializers.CharField()
+    metadata = serializers.DictField(source="get_secret_metadata", read_only=True)
 
     class Meta:
         model = CustomSecret
-        fields = ["id", "secret", "identifier", "desc"]
-
-    def to_representation(self, instance: CustomSecret):
-        res = super().to_representation(instance)
-        res["metadata"] = instance.get_secret_metadata()
-        return res
+        fields = ["id", "secret", "identifier", "desc", "metadata"]

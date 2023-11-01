@@ -1,6 +1,10 @@
 from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase
-from rest_framework.exceptions import NotAuthenticated, AuthenticationFailed
+from rest_framework.exceptions import (
+    NotAuthenticated,
+    AuthenticationFailed,
+    APIException,
+)
 from rest_framework.test import APIRequestFactory
 from rest_framework.views import APIView
 
@@ -51,7 +55,8 @@ class TestRequestCodeValidator(TestCase):
         with self.settings(DEFAULT_NOTIFIER_CLASS=NotifierMock):
             validator = RequestCodeValidator(request=self.request)
 
-            self.assertFalse(validator.validate())
+            with self.assertRaises(APIException):
+                validator.validate()
 
             self.assertEqual(TempCode.objects.count(), 1)
 
@@ -74,7 +79,8 @@ class TestRequestCodeValidator(TestCase):
         with self.settings(DEFAULT_NOTIFIER_CLASS=NotifierMock):
             validator = RequestCodeValidator(request=self.request)
 
-            self.assertFalse(validator.validate())
+            with self.assertRaises(APIException):
+                validator.validate()
 
             self.assertEqual(TempCode.objects.count(), 1)
 
@@ -94,7 +100,8 @@ class TestRequestCodeValidator(TestCase):
         with self.settings(DEFAULT_NOTIFIER_CLASS=NotifierMock):
             validator = RequestCodeValidator(request=self.post_request)
 
-            self.assertFalse(validator.validate())
+            with self.assertRaises(APIException):
+                validator.validate()
 
             self.assertEqual(TempCode.objects.count(), 1)
 
@@ -117,7 +124,8 @@ class TestRequestCodeValidator(TestCase):
         with self.settings(DEFAULT_NOTIFIER_CLASS=NotifierMock):
             validator = RequestCodeValidator(request=self.post_request)
 
-            self.assertFalse(validator.validate())
+            with self.assertRaises(APIException):
+                validator.validate()
 
             self.assertEqual(TempCode.objects.count(), 1)
 

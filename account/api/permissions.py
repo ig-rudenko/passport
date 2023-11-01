@@ -6,10 +6,5 @@ from .validators import RequestCodeValidator
 
 
 class CodePermission(BasePermission):
-
     def has_permission(self, request: Request, view: APIView) -> bool:
         return RequestCodeValidator(request).validate()
-
-    @property
-    def message(self) -> str:
-        return "Подтвердите код, отправленный на ваш телеграм/sms"
